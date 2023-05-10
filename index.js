@@ -57,7 +57,7 @@ app.post('/api/shorturl', (req, res) => {
 
 app.get('/api/shorturl/:short_url', (req, res) => {
   Urls.findOne({short_url:req.params.short_url}).then(data => {
-    res.redirect(`https://${data.original_url}`)
+    res.redirect(data.original_url)
   }).catch(err => console.log(err))
   })
 
