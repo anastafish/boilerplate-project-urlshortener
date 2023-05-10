@@ -4,7 +4,8 @@ const cors = require('cors');
 const app = express();
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
-const dns = require('node:dns');
+const dns = require('dns');
+const urlparser = require('url') 
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
 
 const urlSchema = new mongoose.Schema({
@@ -24,32 +25,57 @@ app.use('/public', express.static(`${process.cwd()}/public`));
 app.use(bodyParser.urlencoded({extended:false}))
 
 app.post('/api/shorturl', (req, res) => {
-  dns.lookup(req.body.url.slice(8), err => {
-    if (err){
-      res.json({ error: 'invalid url' })
-    }
-    else if (req.body.url.slice(0,7) === 'http://') {
-      Urls.count({}).then(data => {
-        const newUrl = new Urls({
-          original_url: req.body.url,
-          short_url: data
-        })
-    
-        newUrl.save().then(data => {
-          res.json({
-            original_url: data.original_url,
-            short_url: data.short_url
-          })
-        }).catch(err => {
-          console.log(err)
-        })
-    
-      }).catch(err => console.log(err))   
+  const dnslookup = dns.lookup(urlparser.parse(req.body.url).hostname, 
+  async (err, address) => {
+    if (!address) {
+      res.json({error:'Invalid URL'})
     }
     else {
-      res.json({ error: 'invalid url' })
+      Urls.count({}).then(data => {
+              const newUrl = new Urls({
+                original_url: req.body.url,
+                short_url: data
+              })
+          
+              newUrl.save().then(data => {
+                res.json({
+                  original_url: data.original_url,
+                  short_url: data.short_url
+                })
+              }).catch(err => {
+                console.log(err)
+              })
+          
+            }).catch(err => console.log(err))    
     }
-  })   
+  }
+  )
+  // dns.lookup(req.body.url.slice(8), err => {
+  //   if (err){
+  //     res.json({ error: 'invalid url' })
+  //   }
+  //   else if (req.body.url.slice(0,7) === 'http://') {
+  //     Urls.count({}).then(data => {
+  //       const newUrl = new Urls({
+  //         original_url: req.body.url,
+  //         short_url: data
+  //       })
+    
+  //       newUrl.save().then(data => {
+  //         res.json({
+  //           original_url: data.original_url,
+  //           short_url: data.short_url
+  //         })
+  //       }).catch(err => {
+  //         console.log(err)
+  //       })
+    
+  //     }).catch(err => console.log(err))   
+  //   }
+  //   else {
+  //     res.json({ error: 'invalid url' })
+  //   }
+  // })   
 })
 
 app.get('/api/shorturl/:short_url', (req, res) => {
