@@ -9,7 +9,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 const urlSchema = new mongoose.Schema({
   original_url:String,
-  short_url:Number
+  short_url:String
 })
 
 const Urls = mongoose.model('Urls', urlSchema)
