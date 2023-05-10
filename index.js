@@ -28,7 +28,7 @@ app.post('/api/shorturl', (req, res) => {
     if (err){
       res.json({ error: 'invalid url' })
     }
-    else if (req.body.url.slice(0,8) === 'https://') {
+    else if (req.body.url.slice(0,7) === 'http://') {
       Urls.count({}).then(data => {
         const newUrl = new Urls({
           original_url: req.body.url,
