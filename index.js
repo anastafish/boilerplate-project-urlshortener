@@ -26,11 +26,9 @@ app.use(bodyParser.urlencoded({extended:false}))
 app.post('/api/shorturl', (req, res) => {
   dns.lookup(req.body.url.slice(8), err => {
     if (err){
-      console.log(1)
       res.json({ error: 'invalid url' })
     }
     else if (req.body.url.slice(0,8) === 'https://') {
-      console.log(2)
       Urls.count({}).then(data => {
         const newUrl = new Urls({
           original_url: req.body.url,
@@ -49,7 +47,6 @@ app.post('/api/shorturl', (req, res) => {
       }).catch(err => console.log(err))   
     }
     else {
-      console.log(3)
       res.json({ error: 'invalid url' })
     }
   })   
